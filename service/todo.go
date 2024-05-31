@@ -42,7 +42,7 @@ func (s *TODOService) CreateTODO(ctx context.Context, subject, description strin
 	if err != nil {
 		return nil, err
 	}
-	todo.ID = int(id)
+	todo.ID = id
 	return &todo, nil
 }
 
@@ -81,7 +81,7 @@ func (s *TODOService) UpdateTODO(ctx context.Context, id int64, subject, descrip
 	if err != nil {
 		return nil, err
 	}
-	todo.ID = int(id)
+	todo.ID = id
 
 	return &todo, nil
 }
