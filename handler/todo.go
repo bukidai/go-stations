@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/TechBowl-japan/go-stations/model"
 	"github.com/TechBowl-japan/go-stations/service"
@@ -33,8 +34,11 @@ func (h *TODOHandler) Create(ctx context.Context, req *model.CreateTODORequest) 
 
 // Read handles the endpoint that reads the TODOs.
 func (h *TODOHandler) Read(ctx context.Context, req *model.ReadTODORequest) (*model.ReadTODOResponse, error) {
-	_, _ = h.svc.ReadTODO(ctx, 0, 0)
-	return &model.ReadTODOResponse{}, nil
+	res, err := h.svc.ReadTODO(ctx, req.PrevID, req.Size)
+	if err != nil {
+		log.Panicln(err)
+	}
+	return &model.ReadTODOResponse{TODOs: res}, nil
 }
 
 // Update handles the endpoint that updates the TODO.
@@ -86,6 +90,24 @@ func (h *TODOHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		res, err := h.Update(r.Context(), req)
+		if err != nil {
+			log.Panicln(err)
+		}
+		if err := json.NewEncoder(w).Encode(res); err != nil {
+			log.Panicln(err)
+		}
+	} else if r.Method == "GET" { // Read
+		query := r.URL.Query()
+		prev_id, err := strconv.Atoi(query.Get("prev_id"))
+		if err != nil {
+			prev_id = 0
+		}
+		size, err := strconv.Atoi(query.Get("size"))
+		if err != nil {
+			size = 5
+		}
+		req := &model.ReadTODORequest{PrevID: int64(prev_id), Size: int64(size)}
+		res, err := h.Read(r.Context(), req)
 		if err != nil {
 			log.Panicln(err)
 		}
