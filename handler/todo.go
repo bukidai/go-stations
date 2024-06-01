@@ -58,86 +58,103 @@ func (h *TODOHandler) Delete(ctx context.Context, req *model.DeleteTODORequest) 
 
 // ServeHTTP implements http.Handler interface.
 func (h *TODOHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" { // Create
-		contentLen := r.ContentLength
-		body := make([]byte, contentLen)
-		r.Body.Read(body)
-		req := &model.CreateTODORequest{}
-		if err := json.Unmarshal(body, req); err != nil {
-			log.Panicln(err)
-		}
-		if req.Subject == "" {
-			w.WriteHeader(http.StatusBadRequest)
+	switch r.Method {
+	case "POST":
+		h.handlePost(w, r)
+	case "PUT":
+		h.handlePut(w, r)
+	case "GET":
+		h.handleGet(w, r)
+	case "DELETE":
+		h.handleDelete(w, r)
+	}
+}
+
+func (h *TODOHandler) handlePost(w http.ResponseWriter, r *http.Request) {
+	contentLen := r.ContentLength
+	body := make([]byte, contentLen)
+	r.Body.Read(body)
+	req := &model.CreateTODORequest{}
+	if err := json.Unmarshal(body, req); err != nil {
+		log.Panicln(err)
+	}
+	if req.Subject == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	res, err := h.Create(r.Context(), req)
+	if err != nil {
+		log.Panicln(err)
+	}
+	if err := json.NewEncoder(w).Encode(res); err != nil {
+		log.Panicln(err)
+	}
+}
+
+func (h *TODOHandler) handlePut(w http.ResponseWriter, r *http.Request) {
+	contentLen := r.ContentLength
+	body := make([]byte, contentLen)
+	r.Body.Read(body)
+	req := &model.UpdateTODORequest{}
+	if err := json.Unmarshal(body, req); err != nil {
+		log.Panicln(err)
+	}
+	if req.ID == 0 || req.Subject == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	res, err := h.Update(r.Context(), req)
+	if err != nil {
+		log.Panicln(err)
+	}
+	if err := json.NewEncoder(w).Encode(res); err != nil {
+		log.Panicln(err)
+	}
+}
+
+func (h *TODOHandler) handleGet(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query()
+	prev_id, err := strconv.Atoi(query.Get("prev_id"))
+	if err != nil {
+		prev_id = 0
+	}
+	size, err := strconv.Atoi(query.Get("size"))
+	if err != nil {
+		size = 5
+	}
+	req := &model.ReadTODORequest{PrevID: int64(prev_id), Size: int64(size)}
+	res, err := h.Read(r.Context(), req)
+	if err != nil {
+		log.Panicln(err)
+	}
+	if err := json.NewEncoder(w).Encode(res); err != nil {
+		log.Panicln(err)
+	}
+}
+
+func (h *TODOHandler) handleDelete(w http.ResponseWriter, r *http.Request) {
+	contentLen := r.ContentLength
+	body := make([]byte, contentLen)
+	r.Body.Read(body)
+	req := &model.DeleteTODORequest{}
+	if err := json.Unmarshal(body, req); err != nil {
+		log.Panicln(err)
+	}
+	if len(req.IDs) == 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	res, err := h.Delete(r.Context(), req)
+	if err != nil {
+		switch err := err.(type) {
+		case *model.ErrNotFound:
+			w.WriteHeader(http.StatusNotFound)
 			return
-		}
-		res, err := h.Create(r.Context(), req)
-		if err != nil {
+		default:
 			log.Panicln(err)
 		}
-		if err := json.NewEncoder(w).Encode(res); err != nil {
-			log.Panicln(err)
-		}
-	} else if r.Method == "PUT" { // Update
-		contentLen := r.ContentLength
-		body := make([]byte, contentLen)
-		r.Body.Read(body)
-		req := &model.UpdateTODORequest{}
-		if err := json.Unmarshal(body, req); err != nil {
-			log.Panicln(err)
-		}
-		if req.ID == 0 || req.Subject == "" {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		res, err := h.Update(r.Context(), req)
-		if err != nil {
-			log.Panicln(err)
-		}
-		if err := json.NewEncoder(w).Encode(res); err != nil {
-			log.Panicln(err)
-		}
-	} else if r.Method == "GET" { // Read
-		query := r.URL.Query()
-		prev_id, err := strconv.Atoi(query.Get("prev_id"))
-		if err != nil {
-			prev_id = 0
-		}
-		size, err := strconv.Atoi(query.Get("size"))
-		if err != nil {
-			size = 5
-		}
-		req := &model.ReadTODORequest{PrevID: int64(prev_id), Size: int64(size)}
-		res, err := h.Read(r.Context(), req)
-		if err != nil {
-			log.Panicln(err)
-		}
-		if err := json.NewEncoder(w).Encode(res); err != nil {
-			log.Panicln(err)
-		}
-	} else if r.Method == "DELETE" { // Delete
-		contentLen := r.ContentLength
-		body := make([]byte, contentLen)
-		r.Body.Read(body)
-		req := &model.DeleteTODORequest{}
-		if err := json.Unmarshal(body, req); err != nil {
-			log.Panicln(err)
-		}
-		if len(req.IDs) == 0 {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		res, err := h.Delete(r.Context(), req)
-		if err != nil {
-			switch err := err.(type) {
-			case *model.ErrNotFound:
-				w.WriteHeader(http.StatusNotFound)
-				return
-			default:
-				log.Panicln(err)
-			}
-		}
-		if err := json.NewEncoder(w).Encode(res); err != nil {
-			log.Panicln(err)
-		}
+	}
+	if err := json.NewEncoder(w).Encode(res); err != nil {
+		log.Panicln(err)
 	}
 }
