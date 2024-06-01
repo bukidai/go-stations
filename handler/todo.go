@@ -52,15 +52,15 @@ func (h *TODOHandler) Update(ctx context.Context, req *model.UpdateTODORequest) 
 
 // Delete handles the endpoint that deletes the TODOs.
 func (h *TODOHandler) Delete(ctx context.Context, req *model.DeleteTODORequest) (*model.DeleteTODOResponse, error) {
-	_ = h.svc.DeleteTODO(ctx, nil)
-	return &model.DeleteTODOResponse{}, nil
+	err := h.svc.DeleteTODO(ctx, req.IDs)
+	return &model.DeleteTODOResponse{}, err
 }
 
 // ServeHTTP implements http.Handler interface.
 func (h *TODOHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" { // Create
-		len := r.ContentLength
-		body := make([]byte, len)
+		contentLen := r.ContentLength
+		body := make([]byte, contentLen)
 		r.Body.Read(body)
 		req := &model.CreateTODORequest{}
 		if err := json.Unmarshal(body, req); err != nil {
@@ -78,8 +78,8 @@ func (h *TODOHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			log.Panicln(err)
 		}
 	} else if r.Method == "PUT" { // Update
-		len := r.ContentLength
-		body := make([]byte, len)
+		contentLen := r.ContentLength
+		body := make([]byte, contentLen)
 		r.Body.Read(body)
 		req := &model.UpdateTODORequest{}
 		if err := json.Unmarshal(body, req); err != nil {
@@ -110,6 +110,31 @@ func (h *TODOHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		res, err := h.Read(r.Context(), req)
 		if err != nil {
 			log.Panicln(err)
+		}
+		if err := json.NewEncoder(w).Encode(res); err != nil {
+			log.Panicln(err)
+		}
+	} else if r.Method == "DELETE" { // Delete
+		contentLen := r.ContentLength
+		body := make([]byte, contentLen)
+		r.Body.Read(body)
+		req := &model.DeleteTODORequest{}
+		if err := json.Unmarshal(body, req); err != nil {
+			log.Panicln(err)
+		}
+		if len(req.IDs) == 0 {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		res, err := h.Delete(r.Context(), req)
+		if err != nil {
+			switch err := err.(type) {
+			case *model.ErrNotFound:
+				w.WriteHeader(http.StatusNotFound)
+				return
+			default:
+				log.Panicln(err)
+			}
 		}
 		if err := json.NewEncoder(w).Encode(res); err != nil {
 			log.Panicln(err)
