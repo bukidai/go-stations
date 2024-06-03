@@ -79,7 +79,7 @@ func (h *TODOHandler) handlePost(w http.ResponseWriter, r *http.Request) {
 		log.Panicln(err)
 	}
 	if req.Subject == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, "subject is required", http.StatusBadRequest)
 		return
 	}
 	res, err := h.Create(r.Context(), req)
@@ -100,7 +100,7 @@ func (h *TODOHandler) handlePut(w http.ResponseWriter, r *http.Request) {
 		log.Panicln(err)
 	}
 	if req.ID == 0 || req.Subject == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, "subject is required", http.StatusBadRequest)
 		return
 	}
 	res, err := h.Update(r.Context(), req)
@@ -141,14 +141,14 @@ func (h *TODOHandler) handleDelete(w http.ResponseWriter, r *http.Request) {
 		log.Panicln(err)
 	}
 	if len(req.IDs) == 0 {
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, "id=0 is not allowed", http.StatusBadRequest)
 		return
 	}
 	res, err := h.Delete(r.Context(), req)
 	if err != nil {
 		switch err := err.(type) {
 		case *model.ErrNotFound:
-			w.WriteHeader(http.StatusNotFound)
+			http.Error(w, err.Error(), http.StatusNotFound)
 			return
 		default:
 			log.Panicln(err)
