@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"log"
 	"net/http"
 )
 
@@ -15,5 +14,5 @@ func NewDoPanicHandler() *DoPanicHandler {
 
 // ServeHTTP implements http.Handler interface.
 func (h *DoPanicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	log.Panicln("Panic!")
+	panic("do-panic")
 }
