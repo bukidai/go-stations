@@ -13,7 +13,7 @@ type osContextKey string
 
 const osKey = osContextKey("os")
 
-func OSContextInjector(h http.Handler) http.Handler {
+func OSContextInjection(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		parsedUA := useragent.Parse(r.UserAgent())
 		ctx := r.Context()
