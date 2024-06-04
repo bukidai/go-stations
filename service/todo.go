@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/TechBowl-japan/go-stations/model"
+	"github.com/bukidai/go-stations/model"
 )
 
 // A TODOService implements CRUD of TODO entities.

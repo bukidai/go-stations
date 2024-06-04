@@ -1,4 +1,4 @@
-module github.com/TechBowl-japan/go-stations
+module github.com/bukidai/go-stations
 
 go 1.16
 

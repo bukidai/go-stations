@@ -6,9 +6,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/TechBowl-japan/go-stations/db"
-	"github.com/TechBowl-japan/go-stations/handler/middleware"
-	"github.com/TechBowl-japan/go-stations/handler/router"
+	"github.com/bukidai/go-stations/db"
+	"github.com/bukidai/go-stations/handler/middleware"
+	"github.com/bukidai/go-stations/handler/router"
 )
 
 func main() {

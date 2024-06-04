@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	"github.com/TechBowl-japan/go-stations/handler/middleware"
+	"github.com/bukidai/go-stations/handler/middleware"
 )
 
 type ShowOSHandler struct{}

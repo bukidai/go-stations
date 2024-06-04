@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/TechBowl-japan/go-stations/model"
-	"github.com/TechBowl-japan/go-stations/service"
+	"github.com/bukidai/go-stations/model"
+	"github.com/bukidai/go-stations/service"
 )
 
 // A TODOHandler implements handling REST endpoints.

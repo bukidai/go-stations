@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/TechBowl-japan/go-stations/model"
+	"github.com/bukidai/go-stations/model"
 )
 
 // A HealthzHandler implements health check endpoint.

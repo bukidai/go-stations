@@ -4,9 +4,9 @@ import (
 	"database/sql"
 	"net/http"
 
-	"github.com/TechBowl-japan/go-stations/handler"
-	"github.com/TechBowl-japan/go-stations/handler/middleware"
-	"github.com/TechBowl-japan/go-stations/service"
+	"github.com/bukidai/go-stations/handler"
+	"github.com/bukidai/go-stations/handler/middleware"
+	"github.com/bukidai/go-stations/service"
 )
 
 func NewRouter(todoDB *sql.DB, authSetting *middleware.AuthSetting) *http.ServeMux {
@@ -17,7 +17,7 @@ func NewRouter(todoDB *sql.DB, authSetting *middleware.AuthSetting) *http.ServeM
 	mux.HandleFunc("/do-panic", middleware.Recovery(handler.NewDoPanicHandler()).ServeHTTP)
 	mux.HandleFunc("/show-os", middleware.OSContextInjection(handler.NewShowOSHandler()).ServeHTTP)
 	mux.HandleFunc("/duration", middleware.OSContextInjection(middleware.AccessLog(handler.NewDurationHandler())).ServeHTTP)
-	mux.HandleFunc("/hello", handler.NewAuthTestHandler().ServeHTTP)
+	mux.HandleFunc("/basic", handler.NewBasicTestHandler().ServeHTTP)
 
 	return mux
 }
