@@ -17,7 +17,7 @@ func NewRouter(todoDB *sql.DB, authSetting *middleware.AuthSetting) *http.ServeM
 	mux.HandleFunc("/do-panic", middleware.Recovery(handler.NewDoPanicHandler()).ServeHTTP)
 	mux.HandleFunc("/show-os", middleware.OSContextInjection(handler.NewShowOSHandler()).ServeHTTP)
 	mux.HandleFunc("/duration", middleware.OSContextInjection(middleware.AccessLog(handler.NewDurationHandler())).ServeHTTP)
-	mux.HandleFunc("/basic", handler.NewBasicTestHandler().ServeHTTP)
+	mux.HandleFunc("/basic", middleware.BasicAuth(handler.NewTestBasicHandler(), authSetting).ServeHTTP)
 
 	return mux
 }

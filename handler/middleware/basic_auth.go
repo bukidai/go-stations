@@ -24,11 +24,9 @@ func NewAuthSetting(username, password string) (*AuthSetting, error) {
 func BasicAuth(h http.Handler, authSetting *AuthSetting) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		username, password, ok := r.BasicAuth()
-		if !ok {
-			http.Error(w, "Authentication required", http.StatusUnauthorized)
-			return
-		} else if username != authSetting.Username || password != authSetting.Password {
-			http.Error(w, "Authentication failed", http.StatusUnauthorized)
+		if !ok || (username != authSetting.Username || password != authSetting.Password) {
+			w.Header().Set("WWW-Authenticate", `Basic realm="Auth area"`)
+			http.Error(w, "401 authentication required", http.StatusUnauthorized)
 			return
 		}
 		h.ServeHTTP(w, r)
