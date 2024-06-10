@@ -2,8 +2,8 @@
 
 # BASIC認証のテスト
 
-username=$BASIC_AUTH_USER_ID
-password=$BASIC_AUTH_PASSWORD
+username=admin
+password=pass
 
 echo "正常系項目"
 

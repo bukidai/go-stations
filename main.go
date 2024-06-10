@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/bukidai/go-stations/db"
@@ -27,7 +28,8 @@ func realMain() error {
 		defaultDBPath = ".sqlite3/todo.db"
 	)
 
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, os.Kill)
+	ctx, stop := signal.NotifyContext(context.Background(),
+		os.Interrupt, os.Kill, syscall.SIGTERM, syscall.SIGQUIT)
 	defer stop()
 
 	port := os.Getenv("PORT")
@@ -74,7 +76,8 @@ func realMain() error {
 	go srv.ListenAndServe()
 
 	<-ctx.Done()
-	ctx = context.Background() // 無限に待つコンテキスト
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 	srv.Shutdown(ctx)
 
 	return nil

@@ -11,7 +11,7 @@ import (
 
 type osContextKey string
 
-const osKey = osContextKey("os")
+const osKey osContextKey = "os"
 
 func OSContextInjection(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {

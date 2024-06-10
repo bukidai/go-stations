@@ -1,0 +1,97 @@
+正常系項目
+正しいユーザIDとパスワードを入力
+runcommand: curl -i -u admin:pass http://localhost:8080/basic
+期待値: 200 OK
+HTTP/1.1 200 OK
+Date: Mon, 10 Jun 2024 00:36:32 GMT
+Content-Length: 24
+Content-Type: text/plain; charset=utf-8
+
+Authentication Success!
+BASIC認証対象外にアクセス
+runcommand: curl -i http://localhost:8080/show-os
+期待値: 200 OK
+HTTP/1.1 200 OK
+Date: Mon, 10 Jun 2024 00:36:32 GMT
+Content-Length: 5
+Content-Type: text/plain; charset=utf-8
+
+OS: 
+異常系項目
+ユーザIDが間違っている
+runcommand: curl -i -u wrong:pass http://localhost:8080/basic
+期待値: 401 Unauthorized
+HTTP/1.1 401 Unauthorized
+Content-Type: text/plain; charset=utf-8
+Www-Authenticate: Basic realm="Auth area"
+X-Content-Type-Options: nosniff
+Date: Mon, 10 Jun 2024 00:36:32 GMT
+Content-Length: 28
+
+401 authentication required
+パスワードが間違っている
+runcommand: curl -i -u admin:wrong http://localhost:8080/basic
+期待値: 401 Unauthorized
+HTTP/1.1 401 Unauthorized
+Content-Type: text/plain; charset=utf-8
+Www-Authenticate: Basic realm="Auth area"
+X-Content-Type-Options: nosniff
+Date: Mon, 10 Jun 2024 00:36:32 GMT
+Content-Length: 28
+
+401 authentication required
+ユーザIDとパスワードが間違っている
+runcommand: curl -i -u wrong:wrong http://localhost:8080/basic
+期待値: 401 Unauthorized
+HTTP/1.1 401 Unauthorized
+Content-Type: text/plain; charset=utf-8
+Www-Authenticate: Basic realm="Auth area"
+X-Content-Type-Options: nosniff
+Date: Mon, 10 Jun 2024 00:36:32 GMT
+Content-Length: 28
+
+401 authentication required
+ユーザIDが空
+runcommand: curl -i -u :pass http://localhost:8080/basic
+期待値: 401 Unauthorized
+HTTP/1.1 401 Unauthorized
+Content-Type: text/plain; charset=utf-8
+Www-Authenticate: Basic realm="Auth area"
+X-Content-Type-Options: nosniff
+Date: Mon, 10 Jun 2024 00:36:32 GMT
+Content-Length: 28
+
+401 authentication required
+パスワードが空
+runcommand: curl -i -u admin: http://localhost:8080/basic
+期待値: 401 Unauthorized
+HTTP/1.1 401 Unauthorized
+Content-Type: text/plain; charset=utf-8
+Www-Authenticate: Basic realm="Auth area"
+X-Content-Type-Options: nosniff
+Date: Mon, 10 Jun 2024 00:36:32 GMT
+Content-Length: 28
+
+401 authentication required
+ユーザIDとパスワードが空
+runcommand: curl -i -u : http://localhost:8080/basic
+期待値: 401 Unauthorized
+HTTP/1.1 401 Unauthorized
+Content-Type: text/plain; charset=utf-8
+Www-Authenticate: Basic realm="Auth area"
+X-Content-Type-Options: nosniff
+Date: Mon, 10 Jun 2024 00:36:32 GMT
+Content-Length: 28
+
+401 authentication required
+認証情報がない
+runcommand: curl -i http://localhost:8080/basic
+期待値: 401 Unauthorized
+HTTP/1.1 401 Unauthorized
+Content-Type: text/plain; charset=utf-8
+Www-Authenticate: Basic realm="Auth area"
+X-Content-Type-Options: nosniff
+Date: Mon, 10 Jun 2024 00:36:32 GMT
+Content-Length: 28
+
+401 authentication required
