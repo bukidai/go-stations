@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"time"
 
 	"github.com/bukidai/go-stations/db"
@@ -24,6 +26,9 @@ func realMain() error {
 		defaultPort   = ":8080"
 		defaultDBPath = ".sqlite3/todo.db"
 	)
+
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, os.Kill)
+	defer stop()
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -62,7 +67,15 @@ func realMain() error {
 	// NOTE: 新しいエンドポイントの登録はrouter.NewRouterの内部で行うようにする
 	mux := router.NewRouter(todoDB, authSetting)
 
-	// TODO: サーバーをlistenする
-	http.ListenAndServe(port, mux)
+	srv := &http.Server{
+		Addr:    port,
+		Handler: mux,
+	}
+	go srv.ListenAndServe()
+
+	<-ctx.Done()
+	ctx = context.Background() // 無限に待つコンテキスト
+	srv.Shutdown(ctx)
+
 	return nil
 }
